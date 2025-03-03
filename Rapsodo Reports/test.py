@@ -17,7 +17,9 @@ def load_data(file_path):
     return df
 
 def date(df):
-    print(df.Date)
+    print(df['HB (spin)'])
+    print(df['HB (trajectory)'])
+    print(df['SSW HB'])
 
 def helper_get_columns(df):
     '''
@@ -35,7 +37,7 @@ def helper_get_columns(df):
        'Player Name']
     '''
 
-def rollingFastballVelo(df):
+def rolling_fastball_velo(df):
 
     df_fastball = df.loc[df["Pitch Type"] == "Fastball"]
     df_fastball["Date"] = pd.to_datetime(df_fastball["Date"], errors="coerce")
@@ -56,10 +58,52 @@ def rollingFastballVelo(df):
     plt.xticks(df_fastball["Date"][::len(df_fastball)//num_ticks], rotation=20)
     plt.show()
 
+def calc_averages_by_pitch(df):
+    df["Velocity"] = pd.to_numeric(df["Velocity"], errors="coerce")
+    df["VB (trajectory)"] = pd.to_numeric(df["VB (trajectory)"], errors="coerce")
+    df["HB (trajectory)"] = pd.to_numeric(df["HB (trajectory)"], errors="coerce")
+    df["VB (spin)"] = pd.to_numeric(df["VB (spin)"], errors="coerce")
+    df["HB (spin)"] = pd.to_numeric(df["HB (spin)"], errors="coerce")
+    df["Total Spin"] = pd.to_numeric(df["Total Spin"], errors="coerce")
+    df["True Spin (release)"] = pd.to_numeric(df["True Spin (release)"], errors="coerce")
+    df["Spin Efficiency (release)"] = pd.to_numeric(df["Spin Efficiency (release)"], errors="coerce")
+    df = df.dropna()
+    
+
+    return df.groupby("Pitch Type").agg({
+        "Velocity": "mean",
+        "VB (trajectory)": "mean",
+        "HB (trajectory)": "mean",
+        "VB (spin)": "mean",
+        "HB (spin)": "mean",
+        "VB (spin)": "mean",
+        "HB (spin)": "mean",
+        "Total Spin": "mean",
+        "True Spin (release)": "mean",
+        "Spin Efficiency (release)": "mean",
+
+    }).reset_index()
+
+    '''
+        "VB (spin)": "mean",
+        "HB (spin)": "mean",
+        "Total Spin": "mean",
+        "True Spin (release)": "mean",
+        "Spin Efficiency (release)": "mean",
+        #"Spin Direction": "mean",
+        "Spin Confidence": "mean"
+    '''
+
+
+
 
 def main():
     df = load_data("/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/Ananth_Data/940780_pitching_57b97b91a69622a54767.csv")
-    rollingFastballVelo(df)
+    #rolling_fastball_velo(df)
+    new = calc_averages_by_pitch(df)
+    print(new.head())
+    #date(df)
+
 
 
 
