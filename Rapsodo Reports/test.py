@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def load_data(file_path):
     with open(file_path, "r") as f:
         first_line = f.readline() # CSV has a break in the first line so it is blank. 
@@ -9,17 +10,42 @@ def load_data(file_path):
         player_name = f.readline().strip().split(",")[1]
 
  
-
     df = pd.read_csv(file_path, skiprows = 4) # Actual data starts here
     df["Player ID"] = player_id
     df["Player Name"] = player_name
 
     return df
 
-def date(df):
-    print(df['HB (spin)'])
-    print(df['HB (trajectory)'])
-    print(df['SSW HB'])
+
+def parse_files():
+    files = ["/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/anath_iyer/940780_pitching_e5da2b57c63722e5fac6.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/dan_avillo/1170315_pitching_a293c34fdd06898d6608.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/eli_travis/1338288_pitching_600371766e00635409aa.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/ethan_chan/1075743_pitching_cd91e5efa0433c7da6ba.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/jackson_corcoran/1075741_pitching_3933f41138db38245064.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/jake_stern/1075930_pitching_a5af1596c845f54ac2e9.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/jordan_kramer/1075756_pitching_8ade13e92d680298f08e.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/mark_fernandez/941242_pitching_a7073ebcfcb8a1548020.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/quinn_brannan/940677_pitching_4dbc1d5aa1098aa7b338.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/ryan_chang/1075661_pitching_d980dbc36788489b412b.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/sam_chutkow/1076782_pitching_645dbd8be515872cc0b7.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/sam_zacks/940794_pitching_e70d247d76476acf51fc.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/william_schnepf/1075665_pitching_1b98bb75ab4f20fd16eb.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/xander_stolberg/1348694_pitching_50e7a40dcf087b94ae6d.csv",
+            "/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/zachary_gordon/978916_pitching_9220f83c0ab5ba79fad4.csv"
+    ]
+
+    dfs = []
+    for file in files:
+        df = load_data(file)
+        dfs.append(df)
+
+    return dfs
+
+def concat_data(dfs):
+    combined_data = pd.concat(dfs)
+    return combined_data
+
 
 def helper_get_columns(df):
     '''
@@ -45,8 +71,6 @@ def rolling_fastball_velo(df):
     df_fastball["Rolling Velo"] = df_fastball["Velocity"].rolling(window=10).mean()
     df_fastball["PitchOrder"] = df_fastball.index
 
-
-
     plt.figure(figsize=(10,5))
     plt.plot(df_fastball["No"], df_fastball["Rolling Velo"], marker="o", linestyle="-", label="Rolling 10-Pitch Fastball Velo")
     plt.xlabel("No")
@@ -67,7 +91,6 @@ def calc_averages_by_pitch(df):
     df["Total Spin"] = pd.to_numeric(df["Total Spin"], errors="coerce")
     df["True Spin (release)"] = pd.to_numeric(df["True Spin (release)"], errors="coerce")
     df["Spin Efficiency (release)"] = pd.to_numeric(df["Spin Efficiency (release)"], errors="coerce")
-    df = df.dropna()
     
 
     return df.groupby("Pitch Type").agg({
@@ -98,12 +121,10 @@ def calc_averages_by_pitch(df):
 
 
 def main():
-    df = load_data("/Users/leofeingold/Documents/GitHub/Carleton-College-Baseball-Rapsodo-Reports/Ananth_Data/940780_pitching_57b97b91a69622a54767.csv")
-    #rolling_fastball_velo(df)
-    new = calc_averages_by_pitch(df)
-    print(new.head())
-    #date(df)
-
+    dfs = parse_files()
+    data = concat_data(dfs)
+    averages = calc_averages_by_pitch(data)
+    print(averages)
 
 
 
