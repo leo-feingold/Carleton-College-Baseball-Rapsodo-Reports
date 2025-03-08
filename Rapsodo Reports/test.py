@@ -118,13 +118,30 @@ def calc_averages_by_pitch(df):
     '''
 
 
+def bar_graph_velo(df):
+    df = df[df["Pitch Type"] == "Fastball"]
+    bins = pd.cut(df["Velocity"], 8)
+    bin_counts = bins.value_counts().sort_index()
+    bin_labels = [str(interval) for interval in bin_counts.index]
+    
+    plt.figure(figsize = (10, 8))
+    plt.bar(bin_labels, bin_counts, color="royalblue", edgecolor="black")
+    plt.xlabel("Velocity Range")
+    plt.ylabel("Count of Pitches in Range")
+    plt.title("Fastball Velocity Distribution, High Intent Bullpens and Live ABs, (Jan-March 2025)")
+    plt.xticks(rotation = 30)
+    plt.show()
+
+    
+
 
 
 def main():
     dfs = parse_files()
     data = concat_data(dfs)
     averages = calc_averages_by_pitch(data)
-    print(averages)
+    #print(averages)
+    bar_graph_velo(data)
 
 
 
